@@ -1,4 +1,5 @@
 import { TerrainParams } from '../types'
+import { TERRAIN_PARAMS_CONFIG } from '../config/terrainConfig'
 
 interface ControlPanelProps {
   params: TerrainParams
@@ -8,87 +9,30 @@ interface ControlPanelProps {
 export function ControlPanel({ params, onParamsChange }: ControlPanelProps) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    onParamsChange({ ...params, [name]: parseFloat(value) })
+    onParamsChange({
+      ...params,
+      [name]: parseFloat(value)
+    })
   }
 
   return (
     <div className="control-panel">
-      <h3>Terrain Controls</h3>
-      
-      <div className="control-group">
-        <label>
-          Octaves: {params.octaves}
-          <input
-            type="range"
-            name="octaves"
-            min="1"
-            max="8"
-            step="1"
-            value={params.octaves}
-            onChange={handleChange}
-          />
-        </label>
-      </div>
-
-      <div className="control-group">
-        <label>
-          Persistence: {params.persistence}
-          <input
-            type="range"
-            name="persistence"
-            min="0.1"
-            max="1"
-            step="0.05"
-            value={params.persistence}
-            onChange={handleChange}
-          />
-        </label>
-      </div>
-
-      <div className="control-group">
-        <label>
-          Amplitude: {params.amplitude}
-          <input
-            type="range"
-            name="amplitude"
-            min="0.1"
-            max="100"
-            step="0.1"
-            value={params.amplitude}
-            onChange={handleChange}
-          />
-        </label>
-      </div>
-
-      <div className="control-group">
-        <label>
-          Frequency: {params.frequency}
-          <input
-            type="range"
-            name="frequency"
-            min="0.1"
-            max="2"
-            step="0.1"
-            value={params.frequency}
-            onChange={handleChange}
-          />
-        </label>
-      </div>
-
-      <div className="control-group">
-        <label>
-          Flight Speed: {params.speed}
-          <input
-            type="range"
-            name="speed"
-            min="0"
-            max="2"
-            step="0.1"
-            value={params.speed}
-            onChange={handleChange}
-          />
-        </label>
-      </div>
+      {Object.entries(TERRAIN_PARAMS_CONFIG).map(([key, config]) => (
+        <div key={key} className="control-group">
+          <label>
+            {key.charAt(0).toUpperCase() + key.slice(1)}: {params[key as keyof TerrainParams]}
+            <input
+              type="range"
+              name={key}
+              min={config.min}
+              max={config.max}
+              step={config.step}
+              value={params[key as keyof TerrainParams]}
+              onChange={handleChange}
+            />
+          </label>
+        </div>
+      ))}
     </div>
   )
 } 

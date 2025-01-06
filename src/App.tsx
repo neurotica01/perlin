@@ -1,14 +1,15 @@
 import { NoiseTerrainViewer } from './components/NoiseTerrainViewer'
 import { ControlPanel } from './components/ControlPanel'
 import { useState } from 'react'
+import { TERRAIN_PARAMS_CONFIG } from './config/terrainConfig'
 
 function App() {
   const [terrainParams, setTerrainParams] = useState({
-    octaves: 6,
-    persistence: 0.65,
-    amplitude: 40.1,
-    frequency: 0.8,
-    speed: 1.6
+    octaves: TERRAIN_PARAMS_CONFIG.octaves.default,
+    persistence: TERRAIN_PARAMS_CONFIG.persistence.default,
+    amplitude: TERRAIN_PARAMS_CONFIG.amplitude.default,
+    frequency: TERRAIN_PARAMS_CONFIG.frequency.default,
+    speed: TERRAIN_PARAMS_CONFIG.speed.default
   })
 
   return (
