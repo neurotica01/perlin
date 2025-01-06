@@ -12,13 +12,14 @@ const prng = new (Alea as any)('your-seed-here');
 // Create a new noise generator with our seeded PRNG
 const noise2D = createNoise2D(prng);
 
-// Basic 2D noise function that returns values between -1 and 1
+// Basic 2D noise function that returns values between 0 and 1
 export function noise(x: number, y: number): number {
   const scale = 0.02;
-  return noise2D(x * scale, y * scale);
+  // Convert from [-1,1] to [0,1] range
+  return (noise2D(x * scale, y * scale) + 1) * 0.5;
 }
 
-// Enhanced octave noise function
+// Enhanced octave noise function that returns values between 0 and 1
 export function octaveNoise(
   x: number, 
   y: number, 
@@ -37,7 +38,8 @@ export function octaveNoise(
     frequency *= 2;
   }
 
-  // Normalize and apply a more dramatic power curve
+  // Normalize to [0,1] range and apply power curve
+  const normalizedValue = total / maxValue;
   const power = 3.5;
-  return Math.pow(Math.abs(total / maxValue), power) * Math.sign(total);
+  return Math.pow(normalizedValue, power);
 } 
