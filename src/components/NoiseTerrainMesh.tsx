@@ -114,6 +114,12 @@ export function NoiseTerrainMesh({ params }: NoiseTerrainMeshProps) {
     <>
       <OrbitControls />
       <ambientLight intensity={0.5} />
+      
+      <mesh position={[0, .4 * params.amplitude, 0]}>
+        <sphereGeometry args={[, 16, 16]} />
+        <meshStandardMaterial color="red" />
+      </mesh>
+
       <mesh rotation-x={-Math.PI / 2}>
         <primitive object={baseGeometry} ref={geometryRef} />
         <meshStandardMaterial wireframe color="lime" />
