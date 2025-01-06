@@ -5,6 +5,7 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { TerrainParams } from '../types'
 import { updateTerrainGeometry } from '../utils/terrainUtils'
 import { saveMetrics } from '../utils/metricsUtils'
+import { TerrainMarker } from './TerrainMarker'
 
 // Define LOD levels based on camera distance
 const LOD_LEVELS = {
@@ -115,10 +116,7 @@ export function NoiseTerrainMesh({ params }: NoiseTerrainMeshProps) {
       <OrbitControls />
       <ambientLight intensity={0.5} />
       
-      <mesh position={[0, .4 * params.amplitude, 0]}>
-        <sphereGeometry args={[, 16, 16]} />
-        <meshStandardMaterial color="red" />
-      </mesh>
+      <TerrainMarker params={params} />
 
       <mesh rotation-x={-Math.PI / 2}>
         <primitive object={baseGeometry} ref={geometryRef} />
