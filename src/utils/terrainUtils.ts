@@ -30,4 +30,21 @@ export function updateTerrainGeometry(
   }
 
   positions.needsUpdate = true
+}
+
+export function sampleTerrainHeight(
+  x: number, 
+  y: number, 
+  offset: TerrainOffset,
+  params: TerrainParams
+): number {
+  const sampleX = (x + offset.x) * params.frequency
+  const sampleY = (y + offset.y) * params.frequency
+  
+  return octaveNoise(
+    sampleX,
+    sampleY,
+    params.octaves,
+    params.persistence
+  ) * params.amplitude
 } 

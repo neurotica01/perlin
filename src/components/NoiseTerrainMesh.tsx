@@ -116,7 +116,7 @@ export function NoiseTerrainMesh({ params }: NoiseTerrainMeshProps) {
       <OrbitControls />
       <ambientLight intensity={0.5} />
       
-      <TerrainMarker params={params} />
+      <TerrainMarker params={params} offset={offsetRef.current} />
 
       <mesh rotation-x={-Math.PI / 2}>
         <primitive object={baseGeometry} ref={geometryRef} />
