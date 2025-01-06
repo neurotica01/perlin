@@ -55,7 +55,6 @@ export function NoiseTerrainMesh({ params }: NoiseTerrainMeshProps) {
 
   return (
     <>
-      <OrbitControls />
       <ambientLight intensity={0.5} />
       
       {/* <TerrainMarker params={params} offset={offsetRef.current} /> */}

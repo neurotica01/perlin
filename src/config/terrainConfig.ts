@@ -27,8 +27,8 @@ export const TERRAIN_PARAMS_CONFIG: TerrainParamsConfig = {
   },
   speed: {
     min: 0,
-    max: 2.0,
+    max: 5.0,
     step: 0.1,
-    default: 1.6
+    default: 2.5
   }
 } 
