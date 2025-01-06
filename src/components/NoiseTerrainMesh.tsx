@@ -3,15 +3,10 @@ import { BufferGeometry, PlaneGeometry } from 'three'
 import { octaveNoise } from '../utils/perlin'
 import { OrbitControls } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
+import { TerrainParams } from '../types'
 
 interface NoiseTerrainMeshProps {
-  params: {
-    octaves: number
-    persistence: number
-    amplitude: number
-    frequency: number
-    speed: number
-  }
+  params: TerrainParams
 }
 
 export function NoiseTerrainMesh({ params }: NoiseTerrainMeshProps) {

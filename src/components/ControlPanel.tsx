@@ -1,20 +1,8 @@
-import { useState } from 'react'
+import { TerrainParams } from '../types'
 
 interface ControlPanelProps {
-  params: {
-    octaves: number
-    persistence: number
-    amplitude: number
-    frequency: number
-    speed: number
-  }
-  onParamsChange: (params: {
-    octaves: number
-    persistence: number
-    amplitude: number
-    frequency: number
-    speed: number
-  }) => void
+  params: TerrainParams
+  onParamsChange: (params: TerrainParams) => void
 }
 
 export function ControlPanel({ params, onParamsChange }: ControlPanelProps) {

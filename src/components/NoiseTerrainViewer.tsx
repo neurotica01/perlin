@@ -1,14 +1,9 @@
 import { Canvas } from '@react-three/fiber'
 import { NoiseTerrainMesh } from './NoiseTerrainMesh'
+import { TerrainParams } from '../types'
 
 interface NoiseTerrainViewerProps {
-  params: {
-    octaves: number
-    persistence: number
-    amplitude: number
-    frequency: number
-    speed: number
-  }
+  params: TerrainParams
 }
 
 export const NoiseTerrainViewer = ({ params }: NoiseTerrainViewerProps) => {
