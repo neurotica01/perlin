@@ -12,10 +12,16 @@ interface TerrainMarkerProps {
 export function TerrainMarker({ params, offset }: TerrainMarkerProps) {
   const markerRef = useRef<Mesh>(null)
   const currentXOffset = useRef(0)
-  const CONSTANT_HEIGHT = 20 // Height we want to maintain
-  const LOOK_AHEAD_DISTANCE = 20 // How far ahead to check for obstacles
-  const SAMPLE_POINTS = 5 // Number of points to sample ahead
-  const MAX_WEAVE = 15 // Maximum x-basis deviation
+  const xVelocity = useRef(0)
+  
+  // Configuration constants
+  const CONSTANT_HEIGHT = 100
+  const LOOK_AHEAD_DISTANCE = 50
+  const SAMPLE_POINTS = 15
+  const MAX_WEAVE = 25
+  const MAX_VELOCITY = 8
+  const ACCELERATION = 12
+  const DECELERATION = 15
   
   useFrame((_, delta) => {
     if (!markerRef.current) return
@@ -23,40 +29,54 @@ export function TerrainMarker({ params, offset }: TerrainMarkerProps) {
     // Sample points ahead along y-basis to detect obstacles
     const obstacles: number[] = []
     for (let i = 1; i <= SAMPLE_POINTS; i++) {
-      // Calculate sample point along y-basis [-1/√2, 0, 1/√2]
       const distance = (i / SAMPLE_POINTS) * LOOK_AHEAD_DISTANCE
       const sampleX = -distance / Math.sqrt(2)
       const sampleZ = distance / Math.sqrt(2)
       
-      // Get height at sample point
-      const height = sampleTerrainHeight(
-        sampleX,
-        sampleZ,
-        offset,
-        params
-      )
-      obstacles.push(height)
+      // Sample multiple points perpendicular to travel direction
+      for (let j = -2; j <= 2; j++) {
+        const offsetX = j * 5 * (-1 / Math.sqrt(2))
+        const offsetZ = j * 5 * (-1 / Math.sqrt(2))
+        
+        const height = sampleTerrainHeight(
+          sampleX + offsetX,
+          sampleZ + offsetZ,
+          offset,
+          params
+        )
+        obstacles.push(height)
+      }
     }
     
-    // Find highest upcoming obstacle
     const maxObstacleHeight = Math.max(...obstacles)
+    const heightDifference = maxObstacleHeight - CONSTANT_HEIGHT
     
-    // If obstacle detected, adjust x-basis position to avoid
-    if (maxObstacleHeight > CONSTANT_HEIGHT - 5) {
-      // Move along x-basis away from current position
-      currentXOffset.current += delta * 10
-      if (currentXOffset.current > MAX_WEAVE) currentXOffset.current = MAX_WEAVE
+    // Determine desired direction based on obstacles
+    let targetVelocity = 0
+    if (heightDifference > -10) {
+      targetVelocity = currentXOffset.current >= 0 ? MAX_VELOCITY : -MAX_VELOCITY
     } else {
-      // Return to center if no obstacles
-      currentXOffset.current *= 0.95
+      targetVelocity = -Math.sign(currentXOffset.current) * MAX_VELOCITY * 0.5
     }
     
-    // Apply x-basis movement [-1/√2, 0, -1/√2]
+    // Apply acceleration/deceleration with dampening
+    const acceleration = targetVelocity !== 0 ? ACCELERATION : DECELERATION
+    const deltaV = acceleration * delta * 0.8
+    
+    if (Math.abs(targetVelocity - xVelocity.current) <= deltaV) {
+      xVelocity.current = targetVelocity
+    } else {
+      xVelocity.current += deltaV * Math.sign(targetVelocity - xVelocity.current)
+    }
+    
+    // Update position with velocity and additional dampening
+    currentXOffset.current += xVelocity.current * delta * 0.9
+    currentXOffset.current = Math.max(-MAX_WEAVE, Math.min(MAX_WEAVE, currentXOffset.current))
+    
+    // Apply movement along x-basis
     const xBasisScale = currentXOffset.current / Math.sqrt(2)
     markerRef.current.position.x = -xBasisScale
     markerRef.current.position.z = -xBasisScale
-    
-    // Maintain constant height
     markerRef.current.position.y = CONSTANT_HEIGHT
   })
 
