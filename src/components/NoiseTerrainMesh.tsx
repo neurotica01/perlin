@@ -21,7 +21,12 @@ export function NoiseTerrainMesh({ params }: NoiseTerrainMeshProps) {
     for (let i = 0; i < positions.count; i++) {
       const x = positions.getX(i)
       const y = positions.getY(i)
-      const z = octaveNoise(x * 0.8, y * 0.8) * 2
+      const z = octaveNoise(
+        x * params.frequency, 
+        y * params.frequency, 
+        params.octaves, 
+        params.persistence
+      ) * params.amplitude
       positions.setZ(i, z)
     }
 
