@@ -90,16 +90,16 @@ export function NoiseTerrainMesh({ params }: NoiseTerrainMeshProps) {
 
   return (
     <>
-      <ambientLight intensity={0.5} />
+      <ambientLight intensity={0.3} />
       
       {/* Base black terrain */}
       <mesh rotation-x={-Math.PI / 2}>
         <primitive object={baseGeometry} ref={baseGeometryRef} />
-        <meshBasicMaterial color="black" />
+        <meshStandardMaterial color="black" />
       </mesh>
 
       {/* Green wireframe overlay */}
-      <mesh rotation-x={-Math.PI / 2} position={[0, 0.1, 0]}>
+      <mesh rotation-x={-Math.PI / 2} position={[0, 0.05, 0]}>
         <primitive object={baseGeometry.clone()} ref={wireframeGeometryRef} />
         <primitive object={wireframeMaterial} ref={materialRef} />
       </mesh>
