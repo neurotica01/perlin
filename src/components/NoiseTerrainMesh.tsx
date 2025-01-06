@@ -58,7 +58,7 @@ export function NoiseTerrainMesh({ params }: NoiseTerrainMeshProps) {
     return new ShaderMaterial({
       vertexShader,
       fragmentShader,
-      transparent: true,
+      transparent: false,
       wireframe: true,
       uniforms: {
         color: { value: [0, 1, 0] } // lime color
@@ -87,7 +87,7 @@ export function NoiseTerrainMesh({ params }: NoiseTerrainMeshProps) {
     if (!geometryRef.current.attributes.vertexOpacity) {
       geometryRef.current.setAttribute('vertexOpacity', new BufferAttribute(opacityArray, 1))
     } else {
-      geometryRef.current.attributes.vertexOpacity.array = opacityArray
+      (geometryRef.current.attributes.vertexOpacity as BufferAttribute).copyArray(opacityArray)
       geometryRef.current.attributes.vertexOpacity.needsUpdate = true
     }
 
@@ -102,10 +102,15 @@ export function NoiseTerrainMesh({ params }: NoiseTerrainMeshProps) {
     <>
       <ambientLight intensity={0.5} />
       
-      {/* <TerrainMarker params={params} offset={offsetRef.current} /> */}
-
+      {/* Solid black base mesh */}
       <mesh rotation-x={-Math.PI / 2}>
         <primitive object={baseGeometry} ref={geometryRef} />
+        <meshBasicMaterial color="black" />
+      </mesh>
+
+      {/* Wireframe overlay mesh */}
+      <mesh rotation-x={-Math.PI / 2}>
+        <primitive object={baseGeometry} />
         <primitive object={shaderMaterial} ref={materialRef} />
       </mesh>
     </>
