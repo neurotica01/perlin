@@ -13,7 +13,7 @@ interface NoiseTerrainViewerProps {
 
 export const NoiseTerrainViewer = ({ params }: NoiseTerrainViewerProps) => {
   return (
-    <Canvas camera={{ position: [20, 10, 20], fov: 50 }}>
+    <Canvas camera={{ position: [30, 30, 30], fov: 50 }}>
       <color attach="background" args={['#000000']} />
       <NoiseTerrainMesh params={params} />
     </Canvas>

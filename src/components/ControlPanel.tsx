@@ -1,6 +1,13 @@
 import { useState } from 'react'
 
 interface ControlPanelProps {
+  params: {
+    octaves: number
+    persistence: number
+    amplitude: number
+    frequency: number
+    speed: number
+  }
   onParamsChange: (params: {
     octaves: number
     persistence: number
@@ -10,20 +17,10 @@ interface ControlPanelProps {
   }) => void
 }
 
-export function ControlPanel({ onParamsChange }: ControlPanelProps) {
-  const [params, setParams] = useState({
-    octaves: 6,
-    persistence: 0.65,
-    amplitude: 40.1,
-    frequency: 0.8,
-    speed: 1.6
-  })
-
+export function ControlPanel({ params, onParamsChange }: ControlPanelProps) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    const newParams = { ...params, [name]: parseFloat(value) }
-    setParams(newParams)
-    onParamsChange(newParams)
+    onParamsChange({ ...params, [name]: parseFloat(value) })
   }
 
   return (

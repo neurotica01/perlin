@@ -4,11 +4,11 @@ import { useState } from 'react'
 
 function App() {
   const [terrainParams, setTerrainParams] = useState({
-    octaves: 4,
+    octaves: 6,
     persistence: 0.65,
-    amplitude: 1,
-    frequency: 1,
-    speed: 0.5
+    amplitude: 40.1,
+    frequency: 0.8,
+    speed: 1.6
   })
 
   return (
@@ -16,7 +16,10 @@ function App() {
       <div className="viewer-container">
         <NoiseTerrainViewer params={terrainParams} />
       </div>
-      <ControlPanel onParamsChange={setTerrainParams} />
+      <ControlPanel 
+        params={terrainParams} 
+        onParamsChange={setTerrainParams} 
+      />
     </div>
   )
 }

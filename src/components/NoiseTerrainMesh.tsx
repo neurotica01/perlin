@@ -20,7 +20,7 @@ export function NoiseTerrainMesh({ params }: NoiseTerrainMeshProps) {
 
   // Create base geometry
   const baseGeometry = useMemo(() => {
-    return new PlaneGeometry(40, 40, 100, 100)
+    return new PlaneGeometry(80, 80, 150, 150)
   }, [])
 
   // Update terrain every frame
