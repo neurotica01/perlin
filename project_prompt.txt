@@ -1,0 +1,5 @@
+here's my axes.
+so for me (argh) y basis is the direction we are "travelling" in.
+y_basis (i.e. positive y)= [-1/sqrt(2), 0, 1/sqrt(2)]
+x_basis (i.e. positive x)= [-1/sqrt(2), 0, -1/sqrt(2)]
+z_basis (i.e. positive z)= [0, 1, 0]
