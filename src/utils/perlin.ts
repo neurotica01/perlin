@@ -6,8 +6,9 @@ declare class AleaClass {
     constructor(seed?: string);
 }
 
-// Create a seeded random number generator
-const prng = new (Alea as any)('your-seed-here');
+// Create a seeded random number generator using timestamp
+const seed = Date.now().toString();
+const prng = new (Alea as any)(seed);
 
 // Create a new noise generator with our seeded PRNG
 const noise2D = createNoise2D(prng);
