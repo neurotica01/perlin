@@ -1,0 +1,86 @@
+Here's a detailed project spec for creating a rotating 3D Perlin noise terrain visualization:
+
+PROJECT: 3D Perlin Noise Terrain Visualizer
+STACK: React + TypeScript + Three.js + React Three Fiber + Simplex Noise
+
+CORE VISUALIZATION CHARACTERISTICS:
+- Black background
+- Green wireframe rendering
+- Continuous smooth rotation
+- Isometric perspective
+- Real-time rendered terrain based on 2D Perlin noise mapped to 3D space
+- Client-side rendering
+
+COMPONENT ARCHITECTURE:
+```typescript
+interface NoiseTerrainProps {
+  resolution?: number     // Grid density (default: 50x50)
+  rotationSpeed?: number  // Radians per frame (default: 0.01)
+  noiseScale?: number    // Noise frequency (default: 0.05)
+  height?: number        // Max terrain height (default: 10)
+  wireframeColor?: string // (default: '#00ff00')
+}
+
+// Component hierarchy
+NoiseTerrainViewer
+  ├─ Canvas (R3F wrapper)
+  │  ├─ Scene
+  │  │  ├─ NoiseTerrainMesh
+  │  │  │  ├─ Geometry 
+  │  │  │  └─ Material (wireframe)
+  │  │  └─ Lighting (optional)
+  │  └─ Camera (isometric)
+  └─ Controls (optional)
+```
+
+IMPLEMENTATION PHASES:
+
+1. BASIC SETUP
+- Create React project with TypeScript
+- Install dependencies: three, @react-three/fiber, simplex-noise
+- Set up basic R3F Canvas with black background
+
+2. NOISE GENERATION
+- Create noise generation utility
+- Map 2D noise to 3D vertices
+- Generate grid geometry based on noise values
+
+3. MESH & MATERIAL
+- Create wireframe material
+- Build mesh geometry from vertices
+- Apply transformations for isometric view
+
+4. ANIMATION & INTERACTION
+- Implement rotation animation using useFrame
+- Add optional camera controls
+- Optimize performance with useMemo
+
+5. REFINEMENTS
+- Add props for customization
+- Implement performance optimizations
+- Add error boundaries and loading states
+
+KEY TECHNICAL CONSIDERATIONS:
+- Noise values need to be normalized to [-1, 1]
+- Geometry should be centered at origin
+- Camera position for isometric view: (distance, distance, distance)
+- Need to handle component cleanup and buffer disposal
+- Consider using BufferGeometry for performance
+- May need debouncing for resolution changes
+
+PERFORMANCE OPTIMIZATIONS:
+- Use instanced geometry for complex terrains
+- Compute noise values in Web Worker
+- Memoize static geometry
+- Use buffer attributes for dynamic updates
+- Implement level of detail based on viewport
+
+POTENTIAL EXTENSIONS:
+- Color gradients based on height
+- Dynamic noise seed changes
+- Multiple terrain layers
+- Interactive rotation controls
+- Export to GLTF/GLB
+- Screenshot functionality
+
+This spec should provide enough context to pick up development at any phase. Each section can be implemented independently, and the core visualization can be achieved by completing phases 1-4.
