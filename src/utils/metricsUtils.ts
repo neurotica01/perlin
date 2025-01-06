@@ -1,4 +1,5 @@
 import { PerformanceMetrics, MetricsStore } from '../types/metrics'
+import { TerrainParams } from '../types'
 
 const METRICS_STORAGE_KEY = 'terrain-metrics'
 const ROLLING_WINDOW_SIZE = 100 // Adjust this for longer/shorter averaging
@@ -60,4 +61,49 @@ async function sendMetricsToAnalytics(metrics: PerformanceMetrics) {
 
 export function clearMetrics() {
   localStorage.removeItem(METRICS_STORAGE_KEY)
+}
+
+export interface PerformanceRef {
+  lastUpdateTime: number
+  frameCount: number
+  averageUpdateTime: number
+  rollingAverage: number
+  sampleCount: number
+  recentMeasurements: number[]
+}
+
+export function updatePerformanceMetrics(
+  performanceRef: PerformanceRef,
+  updateTime: number,
+  endTime: number,
+  params: TerrainParams
+) {
+  const WINDOW_SIZE = 100 // Keep last 100 measurements
+  const measurements = performanceRef.recentMeasurements
+
+  // Add new measurement
+  measurements.push(updateTime)
+
+  // Remove oldest measurement if we exceed window size
+  if (measurements.length > WINDOW_SIZE) {
+    measurements.shift()
+  }
+
+  // Calculate new average from recent measurements only
+  performanceRef.averageUpdateTime = 
+    measurements.reduce((sum, val) => sum + val, 0) / measurements.length
+
+  performanceRef.frameCount++
+
+  // Save metrics every second
+  if (endTime - performanceRef.lastUpdateTime > 1000) {
+    saveMetrics({
+      averageUpdateTime: performanceRef.averageUpdateTime,
+      frameCount: performanceRef.frameCount,
+      timestamp: Date.now(),
+      params: params,
+      rollingAverage: performanceRef.rollingAverage
+    })
+    performanceRef.lastUpdateTime = endTime
+  }
 } 

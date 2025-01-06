@@ -4,15 +4,9 @@ import { OrbitControls } from '@react-three/drei'
 import { useFrame, useThree } from '@react-three/fiber'
 import { TerrainParams } from '../types'
 import { updateTerrainGeometry } from '../utils/terrainUtils'
-import { saveMetrics } from '../utils/metricsUtils'
-import { TerrainMarker } from './TerrainMarker'
+import { updatePerformanceMetrics, type PerformanceRef } from '../utils/metricsUtils'
 
-// Define LOD levels based on camera distance
-const LOD_LEVELS = {
-  NEAR: { distance: 40, segments: 200 },
-  MID: { distance: 80, segments: 100 },
-  FAR: { distance: Infinity, segments: 50 }
-}
+const SEGMENTS = 200 // Fixed segment count
 
 interface NoiseTerrainMeshProps {
   params: TerrainParams
@@ -21,50 +15,25 @@ interface NoiseTerrainMeshProps {
 export function NoiseTerrainMesh({ params }: NoiseTerrainMeshProps) {
   const geometryRef = useRef<BufferGeometry>(null)
   const offsetRef = useRef({ x: 0, y: 0 })
-  const { camera } = useThree()
-  const lastLODRef = useRef(LOD_LEVELS.MID.segments)
-  const performanceRef = useRef({
+  const performanceRef = useRef<PerformanceRef>({
     lastUpdateTime: 0,
     frameCount: 0,
     averageUpdateTime: 0,
     rollingAverage: 0,
     sampleCount: 0,
-    recentMeasurements: [] as number[]
+    recentMeasurements: []
   })
 
-  // Create base geometry with LOD-based memoization
+  // Create base geometry
   const baseGeometry = useMemo(() => {
-    const distance = camera.position.distanceTo(new Vector3(0, 0, 0))
-    let segments = LOD_LEVELS.MID.segments
+    return new PlaneGeometry(80, 80, SEGMENTS, SEGMENTS)
+  }, [])
 
-    if (distance < LOD_LEVELS.NEAR.distance) {
-      segments = LOD_LEVELS.NEAR.segments
-    } else if (distance < LOD_LEVELS.MID.distance) {
-      segments = LOD_LEVELS.MID.segments
-    } else {
-      segments = LOD_LEVELS.FAR.segments
-    }
-
-    lastLODRef.current = segments
-    return new PlaneGeometry(80, 80, segments, segments)
-  }, [camera.position])
-
-  // Update terrain every frame with LOD check and performance monitoring
+  // Update terrain every frame with performance monitoring
   useFrame((_, delta) => {
     if (!geometryRef.current) return
 
     const startTime = performance.now()
-    const distance = camera.position.distanceTo(new Vector3(0, 0, 0))
-    let currentLOD = lastLODRef.current
-
-    // Check if LOD needs to change
-    if (distance < LOD_LEVELS.NEAR.distance) {
-      currentLOD = LOD_LEVELS.NEAR.segments
-    } else if (distance < LOD_LEVELS.MID.distance) {
-      currentLOD = LOD_LEVELS.MID.segments
-    } else {
-      currentLOD = LOD_LEVELS.FAR.segments
-    }
 
     // Update offset
     offsetRef.current.x += delta * params.speed
@@ -77,38 +46,11 @@ export function NoiseTerrainMesh({ params }: NoiseTerrainMeshProps) {
       params
     )
 
-    // Calculate metrics
+    // Calculate and update metrics
     const endTime = performance.now()
     const updateTime = endTime - startTime
     
-    const WINDOW_SIZE = 100 // Keep last 100 measurements
-    const measurements = performanceRef.current.recentMeasurements
-
-    // Add new measurement
-    measurements.push(updateTime)
-
-    // Remove oldest measurement if we exceed window size
-    if (measurements.length > WINDOW_SIZE) {
-      measurements.shift()
-    }
-
-    // Calculate new average from recent measurements only
-    performanceRef.current.averageUpdateTime = 
-      measurements.reduce((sum, val) => sum + val, 0) / measurements.length
-
-    performanceRef.current.frameCount++
-
-    // Save metrics every second
-    if (endTime - performanceRef.current.lastUpdateTime > 1000) {
-      saveMetrics({
-        averageUpdateTime: performanceRef.current.averageUpdateTime,
-        frameCount: performanceRef.current.frameCount,
-        timestamp: Date.now(),
-        params,
-        rollingAverage: performanceRef.current.rollingAverage
-      })
-      performanceRef.current.lastUpdateTime = endTime
-    }
+    updatePerformanceMetrics(performanceRef.current, updateTime, endTime, params)
   })
 
   return (
@@ -116,7 +58,7 @@ export function NoiseTerrainMesh({ params }: NoiseTerrainMeshProps) {
       <OrbitControls />
       <ambientLight intensity={0.5} />
       
-      <TerrainMarker params={params} offset={offsetRef.current} />
+      {/* <TerrainMarker params={params} offset={offsetRef.current} /> */}
 
       <mesh rotation-x={-Math.PI / 2}>
         <primitive object={baseGeometry} ref={geometryRef} />
