@@ -1,12 +1,7 @@
-import { Canvas } from '@react-three/fiber'
-import { NoiseTerrainMesh } from './components/NoiseTerrainMesh'
+import { NoiseTerrainViewer } from './components/NoiseTerrainViewer'
 
 function App() {
-  return (
-    <Canvas camera={{ position: [0, 5, 5], fov: 75 }}>
-      <NoiseTerrainMesh />
-    </Canvas>
-  )
+  return <NoiseTerrainViewer />
 }
 
 export default App
