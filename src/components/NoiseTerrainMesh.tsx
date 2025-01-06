@@ -1,10 +1,9 @@
 import { useMemo, useRef } from 'react'
-import { BufferGeometry, PlaneGeometry, Vector3, Material, MeshStandardMaterial, ShaderMaterial, BufferAttribute } from 'three'
-import { OrbitControls } from '@react-three/drei'
-import { useFrame, useThree } from '@react-three/fiber'
+import { BufferGeometry, PlaneGeometry, ShaderMaterial } from 'three'
+import { useFrame } from '@react-three/fiber'
 import { TerrainParams } from '../types'
 import { updateTerrainGeometry } from '../utils/terrainUtils'
-import { updatePerformanceMetrics, type PerformanceRef } from '../utils/metricsUtils'
+import { updatePerformanceMetrics } from '../utils/metricsUtils'
 import { GEOMETRY_CONFIG } from '../config/geometryConfig'
 
 interface NoiseTerrainMeshProps {
@@ -12,29 +11,25 @@ interface NoiseTerrainMeshProps {
 }
 
 const vertexShader = `
-  attribute float vertexOpacity;
-  varying float vOpacity;
-
   void main() {
-    vOpacity = vertexOpacity;
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
 `
 
 const fragmentShader = `
-  varying float vOpacity;
   uniform vec3 color;
 
   void main() {
-    gl_FragColor = vec4(color, vOpacity);
+    gl_FragColor = vec4(color, 1.0);
   }
 `
 
 export function NoiseTerrainMesh({ params }: NoiseTerrainMeshProps) {
-  const geometryRef = useRef<BufferGeometry>(null)
+  const baseGeometryRef = useRef<BufferGeometry>(null)
+  const wireframeGeometryRef = useRef<BufferGeometry>(null)
   const materialRef = useRef<ShaderMaterial>(null)
   const offsetRef = useRef({ x: 0, y: 0 })
-  const performanceRef = useRef<PerformanceRef>({
+  const performanceRef = useRef({
     lastUpdateTime: 0,
     frameCount: 0,
     averageUpdateTime: 0,
@@ -46,29 +41,27 @@ export function NoiseTerrainMesh({ params }: NoiseTerrainMeshProps) {
   // Create base geometry
   const baseGeometry = useMemo(() => {
     return new PlaneGeometry(
-      GEOMETRY_CONFIG.PLANE_SIZE, 
-      GEOMETRY_CONFIG.PLANE_SIZE, 
-      GEOMETRY_CONFIG.SEGMENTS, 
+      GEOMETRY_CONFIG.PLANE_SIZE,
+      GEOMETRY_CONFIG.PLANE_SIZE,
+      GEOMETRY_CONFIG.SEGMENTS,
       GEOMETRY_CONFIG.SEGMENTS
     )
   }, [])
 
-  // Create custom shader material
-  const shaderMaterial = useMemo(() => {
+  // Create wireframe shader material
+  const wireframeMaterial = useMemo(() => {
     return new ShaderMaterial({
       vertexShader,
       fragmentShader,
-      transparent: false,
       wireframe: true,
       uniforms: {
-        color: { value: [0, 1, 0] } // lime color
+        color: { value: [0, 1, 0] }
       }
     })
   }, [])
 
-  // Update terrain every frame with performance monitoring
   useFrame((_, delta) => {
-    if (!geometryRef.current || !materialRef.current) return
+    if (!baseGeometryRef.current || !wireframeGeometryRef.current) return
 
     const startTime = performance.now()
 
@@ -76,20 +69,17 @@ export function NoiseTerrainMesh({ params }: NoiseTerrainMeshProps) {
     offsetRef.current.x += delta * params.speed
     offsetRef.current.y += delta * params.speed
 
-    // Update geometry and get opacity array
-    const opacityArray = updateTerrainGeometry(
-      geometryRef.current.attributes.position,
+    // Update both geometries
+    updateTerrainGeometry(
+      baseGeometryRef.current.attributes.position,
       offsetRef.current,
       params
     )
-
-    // Update vertex opacity attribute
-    if (!geometryRef.current.attributes.vertexOpacity) {
-      geometryRef.current.setAttribute('vertexOpacity', new BufferAttribute(opacityArray, 1))
-    } else {
-      (geometryRef.current.attributes.vertexOpacity as BufferAttribute).copyArray(opacityArray)
-      geometryRef.current.attributes.vertexOpacity.needsUpdate = true
-    }
+    updateTerrainGeometry(
+      wireframeGeometryRef.current.attributes.position,
+      offsetRef.current,
+      params
+    )
 
     // Calculate and update metrics
     const endTime = performance.now()
@@ -102,16 +92,16 @@ export function NoiseTerrainMesh({ params }: NoiseTerrainMeshProps) {
     <>
       <ambientLight intensity={0.5} />
       
-      {/* Solid black base mesh */}
+      {/* Base black terrain */}
       <mesh rotation-x={-Math.PI / 2}>
-        <primitive object={baseGeometry} ref={geometryRef} />
+        <primitive object={baseGeometry} ref={baseGeometryRef} />
         <meshBasicMaterial color="black" />
       </mesh>
 
-      {/* Wireframe overlay mesh */}
-      <mesh rotation-x={-Math.PI / 2}>
-        <primitive object={baseGeometry} />
-        <primitive object={shaderMaterial} ref={materialRef} />
+      {/* Green wireframe overlay */}
+      <mesh rotation-x={-Math.PI / 2} position={[0, 0.1, 0]}>
+        <primitive object={baseGeometry.clone()} ref={wireframeGeometryRef} />
+        <primitive object={wireframeMaterial} ref={materialRef} />
       </mesh>
     </>
   )
