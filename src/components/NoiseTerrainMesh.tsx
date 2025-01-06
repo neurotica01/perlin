@@ -4,6 +4,7 @@ import { OrbitControls } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { TerrainParams } from '../types'
 import { updateTerrainGeometry } from '../utils/terrainUtils'
+import { saveMetrics } from '../utils/metricsUtils'
 
 interface NoiseTerrainMeshProps {
   params: TerrainParams
@@ -15,7 +16,9 @@ export function NoiseTerrainMesh({ params }: NoiseTerrainMeshProps) {
   const performanceRef = useRef({
     lastUpdateTime: 0,
     frameCount: 0,
-    averageUpdateTime: 0
+    averageUpdateTime: 0,
+    rollingAverage: 0,
+    sampleCount: 0
   })
 
   // Create base geometry with memoization
@@ -40,7 +43,7 @@ export function NoiseTerrainMesh({ params }: NoiseTerrainMeshProps) {
       params
     )
 
-    // Calculate performance metrics
+    // Calculate metrics
     const endTime = performance.now()
     const updateTime = endTime - startTime
     
@@ -49,9 +52,16 @@ export function NoiseTerrainMesh({ params }: NoiseTerrainMeshProps) {
       (performanceRef.current.averageUpdateTime * (performanceRef.current.frameCount - 1) + updateTime) 
       / performanceRef.current.frameCount
 
-    // Log performance every second
+    // Save metrics every second
     if (endTime - performanceRef.current.lastUpdateTime > 1000) {
-      console.log(`Average update time: ${performanceRef.current.averageUpdateTime.toFixed(2)}ms`)
+      saveMetrics({
+        averageUpdateTime: performanceRef.current.averageUpdateTime,
+        frameCount: performanceRef.current.frameCount,
+        timestamp: Date.now(),
+        params,
+        rollingAverage: performanceRef.current.rollingAverage
+      })
+
       performanceRef.current.lastUpdateTime = endTime
       performanceRef.current.frameCount = 0
     }
