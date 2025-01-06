@@ -11,10 +11,10 @@ interface ControlPanelProps {
 
 export function ControlPanel({ onParamsChange }: ControlPanelProps) {
   const [params, setParams] = useState({
-    octaves: 4,
+    octaves: 6,
     persistence: 0.65,
-    amplitude: 1,
-    frequency: 1
+    amplitude: 8,
+    frequency: .8
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,7 +65,7 @@ export function ControlPanel({ onParamsChange }: ControlPanelProps) {
             type="range"
             name="amplitude"
             min="0.1"
-            max="2"
+            max="100"
             step="0.1"
             value={params.amplitude}
             onChange={handleChange}

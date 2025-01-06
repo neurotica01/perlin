@@ -85,18 +85,3 @@ POTENTIAL EXTENSIONS:
 
 This spec should provide enough context to pick up development at any phase. Each section can be implemented independently, and the core visualization can be achieved by completing phases 1-4.
 
-
-
----
-
-
-UGH ok 
-short term todo:
-- stash again. react component for controls. 
-- remember that there's two canvas components.  what's up with that eh?
-- then continuation
-ideas:
-- flying dot a .8 altitude.  crusing through the terrain. 
-- fpv view?
-- control of this guy?
-- color gradient over time? moving through that graph
