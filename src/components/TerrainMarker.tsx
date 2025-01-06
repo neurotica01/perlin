@@ -5,56 +5,50 @@ import { sampleTerrainHeight } from '../utils/terrainUtils'
 import { Mesh } from 'three'
 import { Html } from '@react-three/drei'
 
-
 interface TerrainMarkerProps {
   params: TerrainParams
-  offset: { x: number, y: number }
+  offset: { x: number; y: number }
 }
 
 export function TerrainMarker({ params, offset }: TerrainMarkerProps) {
   const markerRef = useRef<Mesh>(null)
+  const weaveRef = useRef(0)
   
-  useFrame(() => {
+  useFrame((_, delta) => {
     if (!markerRef.current) return
     
-    // Sample current position
-    const currentHeight = sampleTerrainHeight(0, 0, offset, params)
+    // Update weave position using sin wave
+    weaveRef.current += delta
+    const weaveAmplitude = 10 // Maximum sideways distance
+    const weaveFrequency = 0.5 // Speed of weaving
     
-    // Update marker height to match terrain
-    markerRef.current.position.y = currentHeight
+    // Calculate weave offset along x-basis
+    const weaveOffset = Math.sin(weaveRef.current * weaveFrequency) * weaveAmplitude
     
-    // Sample points ahead
-    const lookAheadDistance = 5
-    const aheadHeight = sampleTerrainHeight(
-      lookAheadDistance, 
-      lookAheadDistance, 
-      offset, 
+    // Apply x-basis movement [-1/√2, 0, -1/√2]
+    const xBasisScale = weaveOffset / Math.sqrt(2)
+    markerRef.current.position.x = -xBasisScale
+    markerRef.current.position.z = -xBasisScale
+    
+    // Sample terrain height at new position
+    const currentHeight = sampleTerrainHeight(
+      markerRef.current.position.x,
+      markerRef.current.position.z,
+      offset,
       params
     )
     
-    // Log only when height changes significantly
-    if (Math.abs(currentHeight - aheadHeight) > 1) {
-      console.log('Significant height change detected:', {
-        current: currentHeight.toFixed(2),
-        ahead: aheadHeight.toFixed(2),
-      })
-    }
+    // Update marker height
+    markerRef.current.position.y = currentHeight
   })
 
   return (
     <group>
       {/* Main marker */}
-      <mesh ref={markerRef} position={[0, 0, 0]}>
+      <mesh ref={markerRef}>
         <sphereGeometry args={[1, 16, 16]} />
         <meshStandardMaterial color="red" />
       </mesh>
-      
-      {/* Debug marker for look-ahead point */}
-      <mesh position={[5, 0, 5]}>
-        <sphereGeometry args={[0.5, 8, 8]} />
-        <meshStandardMaterial color="yellow" wireframe />
-      </mesh>
-
 
       {/* Corner markers */}
       {[
@@ -82,9 +76,6 @@ export function TerrainMarker({ params, offset }: TerrainMarkerProps) {
           </Html>
         </group>
       ))}
-
     </group>
-
-    
   )
 } 
