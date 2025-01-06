@@ -6,6 +6,7 @@ interface ControlPanelProps {
     persistence: number
     amplitude: number
     frequency: number
+    speed: number
   }) => void
 }
 
@@ -13,8 +14,9 @@ export function ControlPanel({ onParamsChange }: ControlPanelProps) {
   const [params, setParams] = useState({
     octaves: 6,
     persistence: 0.65,
-    amplitude: 8,
-    frequency: .8
+    amplitude: 40.1,
+    frequency: 0.8,
+    speed: 1.6
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,6 +85,21 @@ export function ControlPanel({ onParamsChange }: ControlPanelProps) {
             max="2"
             step="0.1"
             value={params.frequency}
+            onChange={handleChange}
+          />
+        </label>
+      </div>
+
+      <div className="control-group">
+        <label>
+          Flight Speed: {params.speed}
+          <input
+            type="range"
+            name="speed"
+            min="0"
+            max="2"
+            step="0.1"
+            value={params.speed}
             onChange={handleChange}
           />
         </label>

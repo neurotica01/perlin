@@ -10,6 +10,7 @@ interface NoiseTerrainMeshProps {
     persistence: number
     amplitude: number
     frequency: number
+    speed: number
   }
 }
 
@@ -26,9 +27,9 @@ export function NoiseTerrainMesh({ params }: NoiseTerrainMeshProps) {
   useFrame((state, delta) => {
     if (!geometryRef.current) return
 
-    // Update offset (adjust speed as needed)
-    offsetRef.current.x += delta * 0.5  // Move in +x direction
-    offsetRef.current.y += delta * 0.5  // Move in +y direction
+    // Update offset using the speed parameter
+    offsetRef.current.x += delta * params.speed
+    offsetRef.current.y += delta * params.speed
 
     const positions = geometryRef.current.attributes.position
 

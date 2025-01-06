@@ -7,6 +7,7 @@ interface NoiseTerrainViewerProps {
     persistence: number
     amplitude: number
     frequency: number
+    speed: number
   }
 }
 

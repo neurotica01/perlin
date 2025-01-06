@@ -7,7 +7,8 @@ function App() {
     octaves: 4,
     persistence: 0.65,
     amplitude: 1,
-    frequency: 1
+    frequency: 1,
+    speed: 0.5
   })
 
   return (
