@@ -5,8 +5,7 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { TerrainParams } from '../types'
 import { updateTerrainGeometry } from '../utils/terrainUtils'
 import { updatePerformanceMetrics, type PerformanceRef } from '../utils/metricsUtils'
-
-const SEGMENTS = 200 // Fixed segment count
+import { GEOMETRY_CONFIG } from '../config/geometryConfig'
 
 interface NoiseTerrainMeshProps {
   params: TerrainParams
@@ -26,7 +25,12 @@ export function NoiseTerrainMesh({ params }: NoiseTerrainMeshProps) {
 
   // Create base geometry
   const baseGeometry = useMemo(() => {
-    return new PlaneGeometry(80, 80, SEGMENTS, SEGMENTS)
+    return new PlaneGeometry(
+      GEOMETRY_CONFIG.PLANE_SIZE, 
+      GEOMETRY_CONFIG.PLANE_SIZE, 
+      GEOMETRY_CONFIG.SEGMENTS, 
+      GEOMETRY_CONFIG.SEGMENTS
+    )
   }, [])
 
   // Update terrain every frame with performance monitoring
