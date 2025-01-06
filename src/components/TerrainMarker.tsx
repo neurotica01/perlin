@@ -3,6 +3,8 @@ import { useFrame } from '@react-three/fiber'
 import { TerrainParams } from '../types'
 import { sampleTerrainHeight } from '../utils/terrainUtils'
 import { Mesh } from 'three'
+import { Html } from '@react-three/drei'
+
 
 interface TerrainMarkerProps {
   params: TerrainParams
@@ -52,6 +54,37 @@ export function TerrainMarker({ params, offset }: TerrainMarkerProps) {
         <sphereGeometry args={[0.5, 8, 8]} />
         <meshStandardMaterial color="yellow" wireframe />
       </mesh>
+
+
+      {/* Corner markers */}
+      {[
+        { pos: [40, 0, 40], label: "-x", color: "yellow" },
+        { pos: [-40, 0, -40], label: "+x", color: "yellow" },
+        { pos: [-40, 0, 40], label: "+y", color: "blue" },
+        { pos: [40, 0, -40], label: "-y", color: "blue" }
+      ].map(({ pos, label, color }) => (
+        <group key={label} position={[pos[0], pos[1], pos[2]]}>
+          <mesh>
+            <sphereGeometry args={[1, 8, 8]} />
+            <meshStandardMaterial color={color} />
+          </mesh>
+          <Html center>
+            <div style={{
+              color: 'white',
+              backgroundColor: 'rgba(0,0,0,0.8)',
+              padding: '4px 8px',
+              borderRadius: '4px',
+              fontSize: '12px',
+              whiteSpace: 'nowrap'
+            }}>
+              {label}
+            </div>
+          </Html>
+        </group>
+      ))}
+
     </group>
+
+    
   )
 } 
