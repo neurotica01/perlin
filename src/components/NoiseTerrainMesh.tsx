@@ -1,7 +1,8 @@
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 import { BufferGeometry, PlaneGeometry } from 'three'
-import { octaveNoise } from '../utils/perlin' // We'll create this next
+import { octaveNoise } from '../utils/perlin'
 import { OrbitControls } from '@react-three/drei'
+import { useFrame } from '@react-three/fiber'
 
 interface NoiseTerrainMeshProps {
   params: {
@@ -13,32 +14,52 @@ interface NoiseTerrainMeshProps {
 }
 
 export function NoiseTerrainMesh({ params }: NoiseTerrainMeshProps) {
-  const geometry = useMemo(() => {
-    // Increase size to 20x20, and add more segments for detail
-    const baseGeometry = new PlaneGeometry(40, 40, 100, 100)
-    const positions = baseGeometry.attributes.position
+  const geometryRef = useRef<BufferGeometry>(null)
+  const offsetRef = useRef({ x: 0, y: 0 })
 
+  // Create base geometry
+  const baseGeometry = useMemo(() => {
+    return new PlaneGeometry(40, 40, 100, 100)
+  }, [])
+
+  // Update terrain every frame
+  useFrame((state, delta) => {
+    if (!geometryRef.current) return
+
+    // Update offset (adjust speed as needed)
+    offsetRef.current.x += delta * 0.5  // Move in +x direction
+    offsetRef.current.y += delta * 0.5  // Move in +y direction
+
+    const positions = geometryRef.current.attributes.position
+
+    // Update vertex positions
     for (let i = 0; i < positions.count; i++) {
       const x = positions.getX(i)
       const y = positions.getY(i)
+      
+      // Add offset to sampling coordinates
+      const sampleX = (x + offsetRef.current.x) * params.frequency
+      const sampleY = (y + offsetRef.current.y) * params.frequency
+      
       const z = octaveNoise(
-        x * params.frequency, 
-        y * params.frequency, 
-        params.octaves, 
+        sampleX,
+        sampleY,
+        params.octaves,
         params.persistence
       ) * params.amplitude
+
       positions.setZ(i, z)
     }
 
-    return baseGeometry
-  }, [params])
+    positions.needsUpdate = true
+  })
 
   return (
     <>
       <OrbitControls />
       <ambientLight intensity={0.5} />
       <mesh rotation-x={-Math.PI / 2}>
-        <primitive object={geometry} />
+        <primitive object={baseGeometry} ref={geometryRef} />
         <meshStandardMaterial wireframe color="lime" />
       </mesh>
     </>
