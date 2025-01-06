@@ -39,9 +39,15 @@ export const NoiseTerrainViewer = ({ params }: NoiseTerrainViewerProps) => {
     <Canvas>
       <color attach="background" args={['#000000']} />
       {/* <CameraRig /> */}
+      <PerspectiveCamera 
+        makeDefault 
+        position={[50, 55, 50]} 
+        fov={75}
+      />
       <OrbitControls
         position={[50, 55, 50]} 
         target={[0, 0, 0]}
+        maxPolarAngle={Math.PI / 2.1} // Prevent going below the ground
         makeDefault
       />
       <NoiseTerrainMesh params={params} />
